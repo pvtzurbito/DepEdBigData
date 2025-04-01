@@ -1,6 +1,7 @@
 import pandas as pd
-import numpy as np
 from dash import Dash, html, dash_table
+
+
 
 # Dropping null, duplicates, and unnecessary column
 df = pd.read_csv('SY 2023-2024 School Level Data on Official Enrollment 13.csv', encoding='latin-1', skiprows=4)
@@ -21,16 +22,22 @@ columns_to_fix = ['Municipality', 'Province', 'Barangay']
 for column in columns_to_fix:
   df[column] = df[column].str.title()
 
-df.head(50)
+#
 
-
+#Website
 app = Dash(__name__, external_stylesheets=["/static/main.css"])
 
-
 app.layout = [
-    html.P([html.Img(src='assets/Seal_of_the_Department_of_Education_of_the_Philippines.png'),html.Br(),'Republic of the Philippines', html.Br(), html.Span('Department of Education', className='deped')], className='header-1'),
-    html.Hr(),
-    dash_table.DataTable(data=df.to_dict('records'), page_size=10)
+   #Header
+    html.Div([html.P([html.Img(src='assets/Seal_of_the_Department_of_Education_of_the_Philippines.png'),html.Br(),'Republic of the Philippines', html.Br(), html.Span('Department of Education', className='deped'), html.Br(), 'Education Management Information System Division'], className='header-1'),html.Hr(), 
+             html.P(['About the Data Dashboard'], className='header-text'), html.P(['The Learner Information System Dashboard is designed to provide real-time insights into student data, academic performance, attendance, and engagement metrics. This dashboard enables educators, administrators, and decision-makers to track key indicators that impact student success.'], className ='body-text')],className='sidebar'),
+    #Content
+    html.Div([html.Br()
+       #dash_table.DataTable(data=df.to_dict('records'), page_size=3)
+       ],
+       className='container'),
+   
+
 ]
 
 if __name__ == '__main__':

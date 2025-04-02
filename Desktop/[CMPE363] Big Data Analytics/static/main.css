@@ -17,7 +17,8 @@
     font-family: 'Inter', sans-serif;
     padding: 10px;
     font-weight: bold;
-    font-size: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 .body-text{
@@ -26,6 +27,7 @@
     font-family: 'Inter', sans-serif;
     padding: 10px;
     font-size: 15px;
+    margin-top: 5px;
 }
 
 .sidebar hr{
@@ -56,6 +58,10 @@ img{
 .container{
     display: inline-block;
     background-color: white;
-    border-radius: 20px;
+    border-radius: 3px;
     margin: auto;
+}
+
+.main{
+    margin-left: 375px;
 }

@@ -43,6 +43,45 @@ fig.update_layout(xaxis_title='School Type',
                   yaxis_title='Number of Schools',
                   xaxis_tickangle = -90)
 
+#Question: Do certain school subclassification tend to have higher enrollment in particular grade levels?
+
+# Defining grade-level groups to be used in enrollee count
+preschool_cols = df.filter(like="K ").columns
+elementary_cols = df.filter(regex="G[1-6] ").columns
+jhs_cols= df.filter(regex="G(7|8|9|10) ").columns
+SNEd_cols= df.filter(regex="JHS NG ").columns
+shs_cols= df.filter(regex="G(11|12) ").columns
+
+# Creating summarized enrollment count
+df["Preschool"] = df[preschool_cols].sum(axis=1)
+df["Elementary"] = df[elementary_cols].sum(axis=1)
+df["JHS"] = df[jhs_cols].sum(axis=1)
+df["SNEd"] = df[SNEd_cols].sum(axis=1)
+df["SHS"] = df[shs_cols].sum(axis=1)
+
+# Selecting only the relevant columns to be used in data visualization
+df_summarized = df[['School Subclassification', 'Preschool', 'Elementary', 'JHS', 'SNEd', 'SHS']]
+
+#Aggregating enrollment by school subclassification
+enrollment_summary = df_summarized.groupby('School Subclassification').sum()
+
+#Converting the dataframe for plotly
+enrollment_summary = enrollment_summary.reset_index()
+enrollment_melted = enrollment_summary.melt(id_vars='School Subclassification', var_name='Educational Level', value_name='Enrollment Count')
+
+#Stacked bar chart - plotly
+fig1 = px.bar(enrollment_melted,
+             x='School Subclassification',
+             y='Enrollment Count',
+             color='Educational Level',
+             barmode='group',
+             hover_data={'School Subclassification': False, 'Educational Level': True, 'Enrollment Count': True },
+             color_discrete_sequence=px.colors.qualitative.Vivid)
+fig1.update_layout(xaxis_title='School Subclassification',
+                  yaxis_title='Enrollment Count',
+                  xaxis_tickangle=-90)
+
+
 
 #Website
 app = Dash(__name__, external_stylesheets=["/static/main.css"])
@@ -67,12 +106,20 @@ app.layout = [
 
   #Content
     html.Div([
+       html.H2(['Data Dashboard'], className='header-text'),
+       html.Hr(),
        #Plotly Chart 1
-       html.Div([
+        html.Div([
           html.P('Top 10 School Types with Highest Number of Schools (Grouped by Sector)', className='header-text'), 
           #Chart 1
           dcc.Graph(figure = fig)
-          ],className='container')
+          ],className='container'),
+
+        html.Div([
+           html.P('Enrollment in Different School Types', className = 'header-text'),
+           #Chart 2
+           dcc.Graph(figure = fig1, style={'width': '580px', 'height': '450px'})
+        ], className='container')
     ],className='main')
    
 

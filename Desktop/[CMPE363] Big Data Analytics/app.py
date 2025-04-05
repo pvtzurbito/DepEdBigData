@@ -79,6 +79,8 @@ fig1.update_layout(xaxis_title='School Subclassification',
                   yaxis_title='Enrollment Count',
                   xaxis_tickangle=-90)
 
+
+#Table
 # Combining columns "School Subclassification" and "Modifiec COC" for categorization
 df['School Type Combined'] = df['School Subclassification'] + ' ' + df['Modified COC']
  
@@ -102,9 +104,29 @@ table_fig = go.Figure(data=[go.Table(
                font=dict(size=11)))
 ])
  
-table_fig.update_layout(title='Number of Schools by Type and Sector',
-                        height=600)
+table_fig.update_layout(height=600)
 
+#Mini Widget 1
+# Define grade-level columns
+preschool_cols = df.filter(like="K ").columns
+elementary_cols = df.filter(regex="G[1-6] ").columns
+jhs_cols = df.filter(regex="G(7|8|9|10) ").columns
+SNEd_cols = df.filter(regex="JHS NG ").columns
+shs_cols = df.filter(regex="G(11|12) ").columns
+ 
+# Summarize enrollment counts per level
+df["Preschool"] = df[preschool_cols].sum(axis=1)
+df["Elementary"] = df[elementary_cols].sum(axis=1)
+df["JHS"] = df[jhs_cols].sum(axis=1)
+df["SNEd"] = df[SNEd_cols].sum(axis=1)
+df["SHS"] = df[shs_cols].sum(axis=1)
+ 
+# Calculate total enrollment per row
+df['Total Enrollment'] = df[['Preschool', 'Elementary', 'JHS', 'SNEd', 'SHS']].sum(axis=1)
+ 
+# Sum total enrollment across all rows
+overall_total = df['Total Enrollment'].sum()
+overall_total = f"{overall_total:,}"
 
 
 #Options for dropdown menus
@@ -152,11 +174,19 @@ app.layout = [
           ],className='container'),
 
         html.Div([
-           html.P('Enrollment in Different School Types', className = 'header-text'),
-           #Chart 2
-           dcc.Graph(figure = table_fig, style={'width': '610px', 'height': '600px'})
-        ], className='container')
-    ],className='main')
+           html.P('Number of Schools by Type and Sector', className = 'header-text'),
+           #Table 1
+           dcc.Graph(figure = table_fig, style={'width': '610px', 'height': '450px'})
+        ], className='container'),
+
+
+          html.Div([
+           html.Div([html.H1(overall_total)], className='numerals'), html.P(['Number of Enrolees in AY 2023-2024'],className='body-text-caption')
+        ], className='container'),
+
+    ],className='main'),
+
+
    
 
 ]

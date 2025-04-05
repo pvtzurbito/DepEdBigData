@@ -65,3 +65,24 @@ img{
 .main{
     margin-left: 375px;
 }
+
+.numerals {
+    text-align: center;
+    font-size: 20px;
+    color:#323232;
+    font-family: 'Inter', sans-serif;
+    padding: 10px;
+    font-weight: bold;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.body-text-caption{
+    color:black;
+    text-align: justify;
+    font-family: 'Inter', sans-serif;
+    padding: 10px;
+    font-size: 15px;
+    margin-top: 5px;
+    text-align: center;
+}

@@ -1,0 +1,59 @@
+
+#Version1 
+app.layout = [
+   #Header
+    html.Header([
+    html.P([html.Img(src='assets/Seal_of_the_Department_of_Education_of_the_Philippines.png'),html.Br(),'Republic of the Philippines', html.Br(), html.Span('Department of Education', className='deped'), html.Br(), 'Education Management Information System Division'], className='header-1'),
+    html.Hr(),
+    html.H2('Data Dashboard')]),
+    #Content
+    html.Div([html.Br(),
+       dash_table.DataTable(data=df.to_dict('records'), page_size=3)], 
+       className='container'),
+   
+
+]
+
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
+
+
+body {
+    background-color: #f4f4f4;
+}
+
+.header-1{
+    font-family: 'Cinzel', sans-serif;
+}
+
+.deped{
+    font-family: 'Cinzel', sans-serif;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+p{
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+}
+
+img{
+    width: 50px;
+}
+
+h2{
+    font-family: 'Inter', sans-serif;
+}
+
+.container{
+    display: inline-block;
+    background-color: white;
+    border-radius: 20px;
+}
+
+
+
+, html.P(['The Learner Information System Dashboard is designed to provide real-time insights into student data, academic performance, attendance, and engagement metrics. This dashboard enables educators, administrators, and decision-makers to track key indicators that impact student success.'], className ='body-text')]
+
+

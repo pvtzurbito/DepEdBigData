@@ -1,8 +1,7 @@
 import pandas as pd
-from dash import Dash, html, dash_table, dcc
+from dash import Dash, html, dash_table, dcc, Output, Input, callback
 import plotly.express as px
-
-
+import plotly.graph_objects as go
 
 # Dropping null, duplicates, and unnecessary column
 df = pd.read_csv('SY 2023-2024 School Level Data on Official Enrollment 13.csv', encoding='latin-1', skiprows=4)
@@ -43,8 +42,7 @@ fig.update_layout(xaxis_title='School Type',
                   yaxis_title='Number of Schools',
                   xaxis_tickangle = -90)
 
-#Question: Do certain school subclassification tend to have higher enrollment in particular grade levels?
-
+#For Graph 2
 # Defining grade-level groups to be used in enrollee count
 preschool_cols = df.filter(like="K ").columns
 elementary_cols = df.filter(regex="G[1-6] ").columns
@@ -81,7 +79,36 @@ fig1.update_layout(xaxis_title='School Subclassification',
                   yaxis_title='Enrollment Count',
                   xaxis_tickangle=-90)
 
+# Combining columns "School Subclassification" and "Modifiec COC" for categorization
+df['School Type Combined'] = df['School Subclassification'] + ' ' + df['Modified COC']
+ 
+# Counting the number of schools per type
+school_type_counts = df.groupby(['School Type Combined', 'Sector']).size().reset_index(name='Number of Schools')
+ 
+#for descending order
+school_type_counts = school_type_counts.sort_values(by='Number of Schools', ascending = False)
+ 
+# Display as Table
+table_fig = go.Figure(data=[go.Table(
+    header=dict(values=list(school_type_counts.columns),
+                fill_color='lightgray',
+                align='left',
+                line_color='black', 
+                font=dict(size=12, color='black')),
+    cells=dict(values=[school_type_counts[col] for col in school_type_counts.columns],
+               fill_color='white',
+               align='left',
+               line_color='black', 
+               font=dict(size=11)))
+])
+ 
+table_fig.update_layout(title='Number of Schools by Type and Sector',
+                        height=600)
 
+
+
+#Options for dropdown menus
+region_dropdown = [{'label': region, 'value': region} for region in df['Region'].unique()]
 
 #Website
 app = Dash(__name__, external_stylesheets=["/static/main.css"])
@@ -102,6 +129,15 @@ app.layout = [
          html.H2(['About the Data Dashboard'], className='header-text'), 
          html.P([' The Learner Information System Dashboard provides a comprehensive view of student enrollment across all schools in the Philippines, from Pre-Elementary to Grade 12. Designed for educators, policymakers, and administrators, this dashboard offers data-driven insights to support educational planning and resource allocation.'], className='body-text'),
          ]),
+
+  #Dropdown Menu
+      html.Hr(),
+      html.H2(['Select your Region'], className='header-text'),
+      #Dropdown
+      dcc.Dropdown(id = 'region-dropdown', options = region_dropdown, className= 'body-text'),
+      html.Div(id='region-output', className='body-text')
+
+
   ], className='sidebar'),
 
   #Content
@@ -112,18 +148,25 @@ app.layout = [
         html.Div([
           html.P('Top 10 School Types with Highest Number of Schools (Grouped by Sector)', className='header-text'), 
           #Chart 1
-          dcc.Graph(figure = fig)
+          dcc.Graph(figure = fig, style={'width': '610px', 'height': '450px'})
           ],className='container'),
 
         html.Div([
            html.P('Enrollment in Different School Types', className = 'header-text'),
            #Chart 2
-           dcc.Graph(figure = fig1, style={'width': '580px', 'height': '450px'})
+           dcc.Graph(figure = table_fig, style={'width': '610px', 'height': '600px'})
         ], className='container')
     ],className='main')
    
 
 ]
+
+@callback(
+   Output('region-output', 'children'),
+   Input('region-dropdown', 'value')
+)
+def update_output(value):
+   return f'You have selected {value}'
 
 if __name__ == '__main__':
     app.run(debug=True)

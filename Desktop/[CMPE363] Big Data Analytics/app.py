@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 # Dropping null, duplicates, and unnecessary column
-df = pd.read_csv('SY 2023-2024 School Level Data on Official Enrollment 13.csv', encoding='latin-1', skiprows=4)
+df = pd.read_csv(r"C:\Users\codil.RALPH\Downloads\DataCamp\DepEdBigData\Desktop\[CMPE363] Big Data Analytics\SY 2023-2024 School Level Data on Official Enrollment 13.csv", encoding='latin-1', skiprows=4)
 df = df.dropna()
 df = df.drop_duplicates()
 df = df.drop(columns = "Street Address")

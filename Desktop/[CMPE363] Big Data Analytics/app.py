@@ -51,6 +51,41 @@ jhs_cols= df.filter(regex="G(7|8|9|10) ").columns
 SNEd_cols= df.filter(regex="JHS NG ").columns
 shs_cols= df.filter(regex="G(11|12) ").columns
 
+#For Graph 3
+# Combine all values from "K Male" to "G12 ARTS Female" into a new column
+df['Total Student Enrollment'] = df.loc[:, "K Male":"G12 ARTS Female"].sum(axis=1)
+
+# Create 'Public' and 'Private' columns initialized to 0
+df['Public'] = 0
+df['Private'] = 0
+
+# Categorize 'Total Student Enrollment' values based on 'Sector'
+df.loc[df['Sector'] == 'Public', 'Public'] = df['Total Student Enrollment']
+df.loc[df['Sector'] == 'Private', 'Private'] = df['Total Student Enrollment']
+
+# Display the updated DataFrame with new columns
+display_columns = ['Total Student Enrollment', 'Public', 'Private']
+
+# Calculate the correlation
+correlation = df['Private'].corr(df['Total Student Enrollment'])
+print(f"Correlation between Private Schools and Total Enrollment: {correlation}")
+
+# Create the interactive scatter plot using Plotly Express
+fig2 = px.scatter(
+    df,
+    x='Private',
+    y='Total Student Enrollment',
+    title=f'Correlation between Private Schools and Total Enrollment (Correlation = {correlation:.2f})',
+    trendline="ols",  # Add a trendline
+    labels={'Private': 'Private School Enrollment', 'Total Student Enrollment': 'Total Student Enrollment'},
+)
+
+# Customize the layout
+fig2.update_layout(
+    xaxis_title='Private School Enrollment',
+    yaxis_title='Total Student Enrollment',
+)
+
 # Creating summarized enrollment count
 df["Preschool"] = df[preschool_cols].sum(axis=1)
 df["Elementary"] = df[elementary_cols].sum(axis=1)
@@ -172,7 +207,7 @@ app.layout = [
           html.P('Top 10 School Types with Highest Number of Schools (Grouped by Sector)', className='header-text'), 
           #Chart 1
           dcc.Graph(figure = fig, style={'width': '610px', 'height': '450px'})
-          ],className='container'),
+          ],className='container'),    
 
         html.Div([
            html.P('Number of Schools by Type and Sector', className = 'header-text'),
@@ -182,8 +217,16 @@ app.layout = [
 
 
           html.Div([
-           html.Div([html.H1(overall_total)], className='numerals'), html.P(['Number of Enrolees in AY 2023-2024'],className='body-text-caption')
+           html.Div([html.H1(overall_total)], className='numerals'), html.P(['Number of Enrollees in AY 2023-2024'],className='body-text-caption')
         ], className='container'),
+
+         
+          html.Div([
+           html.P('Correlation between Private Schools and Total Enrollment)', className='header-text'), 
+           #Chart 2
+           dcc.Graph(figure = fig2, style={'width': '610px', 'height': '450px'})
+        ], className='container'),   
+
 
     ],className='main'),
 

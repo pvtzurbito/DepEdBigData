@@ -57,3 +57,8 @@ h2{
 , html.P(['The Learner Information System Dashboard is designed to provide real-time insights into student data, academic performance, attendance, and engagement metrics. This dashboard enables educators, administrators, and decision-makers to track key indicators that impact student success.'], className ='body-text')]
 
 
+
+
+        html.Div([
+           html.P({overall_total}, className='header-text')
+        ])

@@ -132,6 +132,53 @@ overall_total = f"{overall_total:,}"
 #Options for dropdown menus
 region_dropdown = [{'label': region, 'value': region} for region in df['Region'].unique()]
 
+#Count of Schools
+school_count = df['School Name'].count()
+school_count = f"{school_count:,}"
+
+#Schools with Most Enrollees
+# List of all enrollment-related columns (male + female)
+enrollment_columns = [
+    'K Male', 'K Female', 'G1 Male', 'G1 Female', 'G2 Male', 'G2 Female',
+    'G3 Male', 'G3 Female', 'G4 Male', 'G4 Female', 'G5 Male', 'G5 Female',
+    'G6 Male', 'G6 Female', 'Elem NG Male', 'Elem NG Female',
+    'G7 Male', 'G7 Female', 'G8 Male', 'G8 Female', 'G9 Male', 'G9 Female',
+    'G10 Male', 'G10 Female', 'JHS NG Male', 'JHS NG Female',
+    'G11 ACAD - ABM Male', 'G11 ACAD - ABM Female',
+    'G11 ACAD - HUMSS Male', 'G11 ACAD - HUMSS Female',
+    'G11 ACAD STEM Male', 'G11 ACAD STEM Female',
+    'G11 ACAD GAS Male', 'G11 ACAD GAS Female',
+    'G11 ACAD PBM Male', 'G11 ACAD PBM Female',
+    'G11 TVL Male', 'G11 TVL Female',
+    'G11 SPORTS Male', 'G11 SPORTS Female',
+    'G11 ARTS Male', 'G11 ARTS Female',
+    'G12 ACAD - ABM Male', 'G12 ACAD - ABM Female',
+    'G12 ACAD - HUMSS Male', 'G12 ACAD - HUMSS Female',
+    'G12 ACAD STEM Male', 'G12 ACAD STEM Female',
+    'G12 ACAD GAS Male', 'G12 ACAD GAS Female',
+    'G12 ACAD PBM Male', 'G12 ACAD PBM Female',
+    'G12 TVL Male', 'G12 TVL Female',
+    'G12 SPORTS Male', 'G12 SPORTS Female',
+    'G12 ARTS Male', 'G12 ARTS Female'
+]
+
+# Replace missing values with 0
+df[enrollment_columns] = df[enrollment_columns].fillna(0)
+
+# Sum across all grade level columns to get total enrollees per school
+df["Total Enrollees"] = df[enrollment_columns].sum(axis=1)
+
+# Group by region to get the total per region
+region_totals = df.groupby("Region")["Total Enrollees"].sum().reset_index()
+
+# Find region with the most enrollees
+top_region = region_totals.loc[region_totals["Total Enrollees"].idxmax()]
+bot_region = region_totals.loc[region_totals['Total Enrollees'].idxmin()]
+
+
+top_region['Total Enrollees'] = f'{top_region['Total Enrollees']:,}'
+bot_region['Total Enrollees'] = f'{bot_region['Total Enrollees']:,}'
+
 #Website
 app = Dash(__name__, external_stylesheets=["/static/main.css"])
 
@@ -166,6 +213,29 @@ app.layout = [
     html.Div([
        html.H2(['Data Dashboard'], className='header-text'),
        html.Hr(),
+
+       #Number of Enrolled Students
+         html.Div([
+           html.Div([html.H1(overall_total)], className='numerals'), html.P(['Number of Enrolees in AY 2023-2024'],className='body-text-caption')
+            ], className='container'),
+
+         #School Count
+         html.Div([
+           html.Div([html.H1(school_count)], className='numerals'), html.P(['Number of Schools in AY 2023-2024'],className='body-text-caption')
+            ], className='container'),
+
+         #Region with most number of enrolees
+         html.Div([
+           html.Div([html.H1(top_region['Total Enrollees'])], className='numerals'), html.P(['Region with Most Number of Students: ', top_region['Region']],className='body-text-caption')
+            ], className='container'),
+
+         #Region with least number of enrolees
+         html.Div([
+           html.Div([html.H1(bot_region['Total Enrollees'])], className='numerals'), html.P(['Region with Least Students: ', bot_region['Region']],className='body-text-caption')
+            ], className='container'),
+
+
+         
        #Plotly Chart 1
         html.Div([
           html.P('Top 10 School Types with Highest Number of Schools (Grouped by Sector)', className='header-text'), 
@@ -180,9 +250,6 @@ app.layout = [
         ], className='container'),
 
 
-          html.Div([
-           html.Div([html.H1(overall_total)], className='numerals'), html.P(['Number of Enrolees in AY 2023-2024'],className='body-text-caption')
-        ], className='container'),
 
     ],className='main'),
 

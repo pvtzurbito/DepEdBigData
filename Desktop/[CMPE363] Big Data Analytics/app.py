@@ -4,7 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 # Dropping null, duplicates, and unnecessary column
-df = pd.read_csv('data/SY 2023-2024 School Level Data on Official Enrollment 13.csv', encoding='latin-1', skiprows=4)
+df = pd.read_csv(r'C:\Users\Samantha Balangao\Desktop\DepEdBigData\Desktop\[CMPE363] Big Data Analytics\data\SY 2023-2024 School Level Data on Official Enrollment 13.csv', encoding='latin-1', skiprows=4)
 df = df.dropna()
 df = df.drop_duplicates()
 df = df.drop(columns = "Street Address")
@@ -80,31 +80,6 @@ fig1.update_layout(xaxis_title='School Subclassification',
                   xaxis_tickangle=-90)
 
 
-#Table
-# Combining columns "School Subclassification" and "Modifiec COC" for categorization
-df['School Type Combined'] = df['School Subclassification'] + ' ' + df['Modified COC']
- 
-# Counting the number of schools per type
-school_type_counts = df.groupby(['School Type Combined', 'Sector']).size().reset_index(name='Number of Schools')
- 
-#for descending order
-school_type_counts = school_type_counts.sort_values(by='Number of Schools', ascending = False)
- 
-# Display as Table
-table_fig = go.Figure(data=[go.Table(
-    header=dict(values=list(school_type_counts.columns),
-                fill_color='lightgray',
-                align='left',
-                line_color='black', 
-                font=dict(size=12, color='black')),
-    cells=dict(values=[school_type_counts[col] for col in school_type_counts.columns],
-               fill_color='white',
-               align='left',
-               line_color='black', 
-               font=dict(size=11)))
-])
- 
-table_fig.update_layout(height=600)
 
 #Mini Widget 1
 # Define grade-level columns
@@ -113,17 +88,17 @@ elementary_cols = df.filter(regex="G[1-6] ").columns
 jhs_cols = df.filter(regex="G(7|8|9|10) ").columns
 SNEd_cols = df.filter(regex="JHS NG ").columns
 shs_cols = df.filter(regex="G(11|12) ").columns
- 
+
 # Summarize enrollment counts per level
 df["Preschool"] = df[preschool_cols].sum(axis=1)
 df["Elementary"] = df[elementary_cols].sum(axis=1)
 df["JHS"] = df[jhs_cols].sum(axis=1)
 df["SNEd"] = df[SNEd_cols].sum(axis=1)
 df["SHS"] = df[shs_cols].sum(axis=1)
- 
+
 # Calculate total enrollment per row
 df['Total Enrollment'] = df[['Preschool', 'Elementary', 'JHS', 'SNEd', 'SHS']].sum(axis=1)
- 
+
 # Sum total enrollment across all rows
 overall_total = df['Total Enrollment'].sum()
 overall_total = f"{overall_total:,}"
@@ -140,15 +115,15 @@ app.layout = [
   html.Div([
      html.P([
         html.Img(src='assets/Seal_of_the_Department_of_Education_of_the_Philippines.png'),
-        html.Br(),'Republic of the Philippines', 
-        html.Br(), 
-        html.Span('Department of Education', className='deped'), 
+        html.Br(),'Republic of the Philippines',
+        html.Br(),
+        html.Span('Department of Education', className='deped'),
         html.Br(), 'Education Management Information System Division'], className='header-1'),
-        html.Hr(), 
+        html.Hr(),
 
   #About the Data Dashboard
       html.P([
-         html.H2(['About the Data Dashboard'], className='header-text'), 
+         html.H2(['About the Data Dashboard'], className='header-text'),
          html.P([' The Learner Information System Dashboard provides a comprehensive view of student enrollment across all schools in the Philippines, from Pre-Elementary to Grade 12. Designed for educators, policymakers, and administrators, this dashboard offers data-driven insights to support educational planning and resource allocation.'], className='body-text'),
          ]),
 
@@ -168,7 +143,7 @@ app.layout = [
        html.Hr(),
        #Plotly Chart 1
         html.Div([
-          html.P('Top 10 School Types with Highest Number of Schools (Grouped by Sector)', className='header-text'), 
+          html.P('Top 10 School Types with Highest Number of Schools (Grouped by Sector)', className='header-text'),
           #Chart 1
           dcc.Graph(figure = fig, style={'width': '610px', 'height': '450px'})
           ],className='container'),
@@ -176,8 +151,8 @@ app.layout = [
         html.Div([
            html.P('Number of Schools by Type and Sector', className = 'header-text'),
            #Table 1
-           dcc.Graph(figure = table_fig, style={'width': '610px', 'height': '450px'})
-        ], className='container'),
+           dcc.Graph(id='region-table', style={'width': '610px', 'height': '450px'}),
+
 
 
           html.Div([
@@ -187,7 +162,7 @@ app.layout = [
     ],className='main'),
 
 
-   
+
 
 ]
 
@@ -198,9 +173,40 @@ app.layout = [
 def update_output(value):
    return f'You have selected {value}'
 
+@callback(
+    Output('region-table', 'figure'),
+    Input('region-dropdown', 'value')
+)
+def update_table(selected_region):
+    if not selected_region:
+        # Optional: display empty figure or default data
+        return go.Figure()
+
+    # Filter based on selected region
+    filtered_df = df[df['Region'] == selected_region]
+
+    # Group and sort
+    school_type_counts = filtered_df.groupby(['School Type Combined', 'Sector']).size().reset_index(name='Number of Schools')
+    school_type_counts = school_type_counts.sort_values(by='Number of Schools', ascending=False)
+
+    # Create the table
+    table_fig = go.Figure(data=[go.Table(
+        header=dict(values=list(school_type_counts.columns),
+                    fill_color='lightgray',
+                    align='left',
+                    line_color='black',
+                    font=dict(size=12, color='black')),
+        cells=dict(values=[school_type_counts[col] for col in school_type_counts.columns],
+                   fill_color='white',
+                   align='left',
+                   line_color='black',
+                   font=dict(size=11)))
+    ])
+
+    return table_fig
+]
 
 
 
 if __name__ == '__main__':
     app.run(debug=True)
-

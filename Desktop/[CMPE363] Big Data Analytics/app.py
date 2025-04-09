@@ -22,65 +22,6 @@ df["School Name"] = df["School Name"].apply(clean_school_name)
 columns_to_fix = ['Municipality', 'Province', 'Barangay']
 for column in columns_to_fix:
   df[column] = df[column].str.title()
-
-#For Graph 1
-# Combine "School Subclassification" and "Modified COC" into a new dataframe (School Type Combined)
-df['School Type Combined'] = df['School Subclassification'] + ' ' + df['Modified COC']
-
-# Using groupby to count the number of school type by sector.
-school_type_counts = df.groupby(['School Type Combined', 'Sector']).size().reset_index(name='Number of Schools')
-
-# Selecting only the top10 school typress across all sectors
-top_10_types = school_type_counts.groupby('School Type Combined')['Number of Schools'].sum().nlargest(10).index.tolist()
-top_10 = school_type_counts[school_type_counts['School Type Combined'].isin(top_10_types)]
-
-fig = px.bar(top_10,
-             x='School Type Combined',
-             y='Number of Schools',
-             color='Sector',
-             hover_data={'School Type Combined': False, 'Sector': False, 'Number of Schools': True})
-fig.update_layout(xaxis_title='School Type',
-                  yaxis_title='Number of Schools',
-                  xaxis_tickangle = -90)
-
-#For Graph 2
-# Defining grade-level groups to be used in enrollee count
-preschool_cols = df.filter(like="K ").columns
-elementary_cols = df.filter(regex="G[1-6] ").columns
-jhs_cols= df.filter(regex="G(7|8|9|10) ").columns
-SNEd_cols= df.filter(regex="JHS NG ").columns
-shs_cols= df.filter(regex="G(11|12) ").columns
-
-# Creating summarized enrollment count
-df["Preschool"] = df[preschool_cols].sum(axis=1)
-df["Elementary"] = df[elementary_cols].sum(axis=1)
-df["JHS"] = df[jhs_cols].sum(axis=1)
-df["SNEd"] = df[SNEd_cols].sum(axis=1)
-df["SHS"] = df[shs_cols].sum(axis=1)
-
-# Selecting only the relevant columns to be used in data visualization
-df_summarized = df[['School Subclassification', 'Preschool', 'Elementary', 'JHS', 'SNEd', 'SHS']]
-
-#Aggregating enrollment by school subclassification
-enrollment_summary = df_summarized.groupby('School Subclassification').sum()
-
-#Converting the dataframe for plotly
-enrollment_summary = enrollment_summary.reset_index()
-enrollment_melted = enrollment_summary.melt(id_vars='School Subclassification', var_name='Educational Level', value_name='Enrollment Count')
-
-#Stacked bar chart - plotly
-fig1 = px.bar(enrollment_melted,
-             x='School Subclassification',
-             y='Enrollment Count',
-             color='Educational Level',
-             barmode='group',
-             hover_data={'School Subclassification': False, 'Educational Level': True, 'Enrollment Count': True },
-             color_discrete_sequence=px.colors.qualitative.Vivid)
-fig1.update_layout(xaxis_title='School Subclassification',
-                  yaxis_title='Enrollment Count',
-                  xaxis_tickangle=-90)
-
-
 #Options for dropdown menus
 region_dropdown = [{'label': region, 'value': region} for region in df['Region'].unique()]
  

@@ -2,7 +2,7 @@ import pandas as pd
 from dash import Dash, html, dash_table, dcc, Output, Input, callback
 import plotly.express as px
 import plotly.graph_objects as go
-from chart1 import total_student_chart, total_student
+from chart1 import total_student_chart, top_enrollees, total_enrollees_and_schools, school_types
 
 # Dropping null, duplicates, and unnecessary column
 df = pd.read_csv('data/SY 2023-2024 School Level Data on Official Enrollment 13.csv', encoding='latin-1', skiprows=4)
@@ -81,69 +81,13 @@ fig1.update_layout(xaxis_title='School Subclassification',
                   xaxis_tickangle=-90)
 
 
-#Table
-# Combining columns "School Subclassification" and "Modifiec COC" for categorization
-df['School Type Combined'] = df['School Subclassification'] + ' ' + df['Modified COC']
- 
-# Counting the number of schools per type
-school_type_counts = df.groupby(['School Type Combined', 'Sector']).size().reset_index(name='Number of Schools')
- 
-#for descending order
-school_type_counts = school_type_counts.sort_values(by='Number of Schools', ascending = False)
- 
-# Display as Table
-table_fig = go.Figure(data=[go.Table(
-    header=dict(values=list(school_type_counts.columns),
-                fill_color='lightgray',
-                align='left',
-                line_color='black', 
-                font=dict(size=12, color='black')),
-    cells=dict(values=[school_type_counts[col] for col in school_type_counts.columns],
-               fill_color='white',
-               align='left',
-               line_color='black', 
-               font=dict(size=11)))
-])
- 
-table_fig.update_layout(height=600)
-
-#Mini Widget 1
-# Define grade-level columns
-preschool_cols = df.filter(like="K ").columns
-elementary_cols = df.filter(regex="G[1-6] ").columns
-jhs_cols = df.filter(regex="G(7|8|9|10) ").columns
-SNEd_cols = df.filter(regex="JHS NG ").columns
-shs_cols = df.filter(regex="G(11|12) ").columns
- 
-# Summarize enrollment counts per level
-df["Preschool"] = df[preschool_cols].sum(axis=1)
-df["Elementary"] = df[elementary_cols].sum(axis=1)
-df["JHS"] = df[jhs_cols].sum(axis=1)
-df["SNEd"] = df[SNEd_cols].sum(axis=1)
-df["SHS"] = df[shs_cols].sum(axis=1)
- 
-# Calculate total enrollment per row
-df['Total Enrollment'] = df[['Preschool', 'Elementary', 'JHS', 'SNEd', 'SHS']].sum(axis=1)
- 
-# Sum total enrollment across all rows
-overall_total = df['Total Enrollment'].sum()
-overall_total = f"{overall_total:,}"
-
-
 #Options for dropdown menus
 region_dropdown = [{'label': region, 'value': region} for region in df['Region'].unique()]
-
-#Count of Schools
-school_count = df['School Name'].count()
-school_count = f"{school_count:,}"
-
-#Schools with Most Enrollees
-# List of all enrollment-related columns (male + female)
-
-
+ 
 #Website
 app = Dash(__name__, external_stylesheets=["/static/main.css"])
-top_region, bot_region = total_student(df)
+top_region, bot_region = top_enrollees(df)
+overall_total, school_count = total_enrollees_and_schools(df)
 app.layout = [
   #Sidebar
   html.Div([
@@ -201,15 +145,13 @@ app.layout = [
          
        #Plotly Chart 1
         html.Div([
-          html.P('Number of Enrollees per Year Level', className='header-text'), 
           #Chart 1
-          dcc.Graph(figure = total_student_chart(df), style={'width': '610px', 'height': '450px'})
+          dcc.Graph(figure = total_student_chart(df), style={'width': '610px', 'height': '450px', 'margin-top': '0px'})
           ],className='container'),
 
         html.Div([
-           html.P('Number of Schools', className = 'header-text'),
            #Table 1
-           dcc.Graph(figure = table_fig, style={'width': '610px', 'height': '450px'})
+           dcc.Graph(figure = school_types(df), style={'width': '610px', 'height': '450px'})
         ], className='container'),
 
 

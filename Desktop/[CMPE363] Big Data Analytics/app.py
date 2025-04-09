@@ -2,7 +2,7 @@ import pandas as pd
 from dash import Dash, html, dash_table, dcc, Output, Input, callback
 import plotly.express as px
 import plotly.graph_objects as go
-from chart1 import total_student_chart, top_enrollees, total_enrollees_and_schools, school_types
+from chart1 import total_student_chart, top_enrollees, total_enrollees_and_schools, school_types, schools_top
 
 # Dropping null, duplicates, and unnecessary column
 df = pd.read_csv('data/SY 2023-2024 School Level Data on Official Enrollment 13.csv', encoding='latin-1', skiprows=4)
@@ -29,6 +29,7 @@ region_dropdown = [{'label': region, 'value': region} for region in df['Region']
 app = Dash(__name__, external_stylesheets=["/static/main.css"])
 top_region, bot_region = top_enrollees(df)
 overall_total, school_count = total_enrollees_and_schools(df)
+largest, smallest = schools_top(df)
 app.layout = [
   #Sidebar
   html.Div([
@@ -74,12 +75,12 @@ app.layout = [
 
          #Region with most number of enrolees
          html.Div([
-           html.Div([html.H1(top_region['Total Enrollees'])], className='numerals'), html.P(['Region with Most Number of Students: ', top_region['Region']],className='body-text-caption')
+           html.Div([html.H1(largest['Total Enrollees'])], className='numerals'), html.P(['Most Populous: ',largest['School Name']],className='body-text-caption')
             ], className='container'),
 
          #Region with least number of enrolees
          html.Div([
-           html.Div([html.H1(bot_region['Total Enrollees'])], className='numerals'), html.P(['Region with Least Students: ', bot_region['Region']],className='body-text-caption')
+           html.Div([html.H1(smallest['Total Enrollees'])], className='numerals'), html.P(['Least Populous: ',smallest['School Name']],className='body-text-caption')
             ], className='container'),
 
 
@@ -95,7 +96,7 @@ app.layout = [
            dcc.Graph(figure = school_types(df), style={'width': '610px', 'height': '450px'})
         ], className='container'),
 
-
+        html.Div([])
 
     ],className='main'),
 

@@ -183,3 +183,38 @@ def schools_top(df):
     smallest_school = sorted_df.iloc[-1]  # School with the smallest enrollment
 
     return largest_school, smallest_school
+
+
+def pie_chart(df):
+        # TOTAL DISTRIBUTION OF MALE AND FEMALE STUDENTS IN THE PHILIPPINES
+    # Filter out columns that end with 'Male' or 'Female' for ease of counting
+    male_columns = [col for col in df.columns if col.strip().endswith('Male')]
+    female_columns = [col for col in df.columns if col.strip().endswith('Female')]
+    
+    # Sum all male and female students
+    total_male = df[male_columns].sum().sum()
+    total_female = df[female_columns].sum().sum()
+    
+    # Prepare the summary DataFrame
+    gender_distribution = pd.DataFrame({
+        'Gender': ['Male', 'Female'],
+        'Total Enrollment': [total_male, total_female]
+    })
+    
+    # Create the pie chart with values + percentages visible and no hover
+    fig = go.Figure(data=[go.Pie(
+        labels=gender_distribution['Gender'],
+        values=gender_distribution['Total Enrollment'],
+        textinfo='label+value+percent',
+        textposition='outside',
+        hoverinfo='skip',  # disables hover
+        pull=[0.05, 0],
+        marker=dict(colors=px.colors.sequential.RdBu),
+        showlegend=False
+    )])
+    
+    fig.update_layout(
+        title='Total Distribution of Male and Female Students',
+        margin=dict(t=60, b=80)
+    )
+    return fig

@@ -2,27 +2,10 @@ import pandas as pd
 from dash import Dash, html, dash_table, dcc, Output, Input, callback
 import plotly.express as px
 import plotly.graph_objects as go
-from chart1 import total_student_chart, top_enrollees, total_enrollees_and_schools, school_types, schools_top
+from chart1 import total_student_chart, top_enrollees, total_enrollees_and_schools, school_types, schools_top, pie_chart
+from cleaned_data import cleaned_data
 
-# Dropping null, duplicates, and unnecessary column
-df = pd.read_csv('data/SY 2023-2024 School Level Data on Official Enrollment 13.csv', encoding='latin-1', skiprows=4)
-df = df.dropna()
-df = df.drop_duplicates()
-df = df.drop(columns = "Street Address")
-
-# Cleaning the "School Name" column to make it uniform
-def clean_school_name(name):
-  """Replaces school name abbreviations with full forms using string replacement."""
-  name = name.replace(" ES", " Elementary School").replace(" HS", " High School")
-  name = name.replace(" SHS", " Senior High School")
-  return name.strip()
-df["School Name"] = df["School Name"].apply(clean_school_name)
-
-# Fixing capitalization
-columns_to_fix = ['Municipality', 'Province', 'Barangay']
-for column in columns_to_fix:
-  df[column] = df[column].str.title()
-#Options for dropdown menus
+df = cleaned_data()
 region_dropdown = [{'label': region, 'value': region} for region in df['Region'].unique()]
  
 #Website
@@ -96,7 +79,10 @@ app.layout = [
            dcc.Graph(figure = school_types(df), style={'width': '610px', 'height': '450px'})
         ], className='container'),
 
-        html.Div([])
+        html.Div([
+           #Pie Chart
+           dcc.Graph(figure=pie_chart(df), style={'width': '610px', 'height': '450px', 'margin-top': '0px'})
+        ], className='container')
 
     ],className='main'),
 
@@ -106,8 +92,11 @@ app.layout = [
    Output('region-output', 'children'),
    Input('region-dropdown', 'value')
 )
+
+
 def update_output(value):
    return f'You have selected {value}'
+
 
 
 

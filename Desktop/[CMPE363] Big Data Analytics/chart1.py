@@ -214,7 +214,78 @@ def pie_chart(df):
     )])
     
     fig.update_layout(
-        title='Total Distribution of Male and Female Students',
-        margin=dict(t=60, b=80)
+        title_text='<b>Total Distribution of Male and Female Students</b>',
+        title_x=0.5,
+        margin=dict(t=60, b=80),
+        title_font=dict(size=17)
     )
+    return fig
+
+
+def schools_zero_enrolles(df):
+    enrollment_columns = [
+    'K Male', 'K Female', 'G1 Male', 'G1 Female', 'G2 Male', 'G2 Female',
+    'G3 Male', 'G3 Female', 'G4 Male', 'G4 Female', 'G5 Male', 'G5 Female',
+    'G6 Male', 'G6 Female', 'Elem NG Male', 'Elem NG Female',
+    'G7 Male', 'G7 Female', 'G8 Male', 'G8 Female', 'G9 Male', 'G9 Female',
+    'G10 Male', 'G10 Female', 'JHS NG Male', 'JHS NG Female',
+    'G11 ACAD - ABM Male', 'G11 ACAD - ABM Female',
+    'G11 ACAD - HUMSS Male', 'G11 ACAD - HUMSS Female',
+    'G11 ACAD STEM Male', 'G11 ACAD STEM Female',
+    'G11 ACAD GAS Male', 'G11 ACAD GAS Female',
+    'G11 ACAD PBM Male', 'G11 ACAD PBM Female',
+    'G11 TVL Male', 'G11 TVL Female',
+    'G11 SPORTS Male', 'G11 SPORTS Female',
+    'G11 ARTS Male', 'G11 ARTS Female',
+    'G12 ACAD - ABM Male', 'G12 ACAD - ABM Female',
+    'G12 ACAD - HUMSS Male', 'G12 ACAD - HUMSS Female',
+    'G12 ACAD STEM Male', 'G12 ACAD STEM Female',
+    'G12 ACAD GAS Male', 'G12 ACAD GAS Female',
+    'G12 ACAD PBM Male', 'G12 ACAD PBM Female',
+    'G12 TVL Male', 'G12 TVL Female',
+    'G12 SPORTS Male', 'G12 SPORTS Female',
+    'G12 ARTS Male', 'G12 ARTS Female'
+    ]
+
+    df['Enrollment Total'] = df[enrollment_columns].sum(axis=1)
+    zero_enrollment_df = df[df['Enrollment Total'] == 0]
+
+    return len(zero_enrollment_df)
+
+
+def high_enrollment_table(df):
+    # Calculate the sum of enrollees
+    df['Enrollees'] = df.loc[:, 'K Male':'G12 ARTS Female'].sum(axis=1)
+
+    # Delete the original columns
+    columns_to_delete = list(df.loc[:, 'K Male':'G12 ARTS Female'].columns)
+    columns_to_delete.extend(['Region', 'District', 'Municipality', 'Legislative District', 'Barangay', 'Sector', 'School Subclassification', 'School Type',  'BEIS School ID', 'Province', 'Modified COC'])
+    df = df.drop(columns=columns_to_delete) 
+
+    # Group by school name and division, sum enrollees, and sort
+    top_schools = df.groupby(['School Name', 'Division'])['Enrollees'].sum().reset_index()
+    top_schools = top_schools.sort_values('Enrollees', ascending=False).head(10)
+
+    # Create the interactive table
+    fig = go.Figure(data=[go.Table(
+        header=dict(values=['<b><i>School Name</i></b>', '<b><i>Division</i></b>', '<b><i>Enrollees</i></b>'],
+                    fill_color='white',
+                    align='center',
+                    font=dict(size=12),
+                    line_color='darkslategray',
+                    line_width=[0, 0, 0, 0]),
+        cells=dict(values=[top_schools['School Name'], top_schools['Division'], top_schools['Enrollees']],
+                fill_color='white',
+                align='center',
+                font=dict(size=10),
+                line_color=['darkslategray', 'white', 'white', 'white'], # Top, Vertical 1, Vertical 2, Right
+                line_width=[0, 0, 0, 0]))
+    ])
+
+    fig.update_layout(
+        title_text="<b>Schools with the Highest Number of Enrollees</b>",
+        title_x=0.5,
+        title_font=dict(size=17),
+    )
+
     return fig

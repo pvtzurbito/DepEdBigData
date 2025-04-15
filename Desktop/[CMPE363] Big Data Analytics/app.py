@@ -1,13 +1,24 @@
-import pandas as pd
 from dash import Dash, html, dash_table, dcc, Output, Input, callback
 import plotly.express as px
 import plotly.graph_objects as go
-from chart1 import total_student_chart, top_enrollees, total_enrollees_and_schools, school_types, schools_top, pie_chart
+from chart1 import total_student_chart, top_enrollees, total_enrollees_and_schools, school_types, schools_top, pie_chart, schools_zero_enrolles, high_enrollment_table
 from cleaned_data import cleaned_data
 
 df = cleaned_data()
+
+#For Region Dropdown
 region_dropdown = [{'label': region, 'value': region} for region in df['Region'].unique()]
- 
+province_dropdown = dcc.Dropdown(
+    id='province-dropdown',
+    options=[],
+    style={'display': 'none'}
+)
+district_dropdown_component = dcc.Dropdown(
+    id='district-dropdown',
+    options=[],
+    style={'display': 'none'}
+)
+
 #Website
 app = Dash(__name__, external_stylesheets=["/static/main.css"])
 top_region, bot_region = top_enrollees(df)
@@ -32,10 +43,19 @@ app.layout = [
 
   #Dropdown Menu
       html.Hr(),
-      html.H2(['Select your Region'], className='header-text'),
+      html.H2(['Filters'], className='header-text'),
       #Dropdown
+      html.H3(['Select your Region'], className='header-text'),
       dcc.Dropdown(id = 'region-dropdown', options = region_dropdown, className= 'body-text'),
-      html.Div(id='region-output', className='body-text')
+      html.Div(id='region-output', className='body-text'),
+
+      html.H3(['Select your Province'], className='header-text'),
+      html.Div(province_dropdown, className='body-text'),
+      html.Div(id='province-output', className='body-text'),
+
+      html.H3(['Select your District'], className='header-text'),
+      html.Div(district_dropdown_component, className='body-text'),
+      html.Div(id='district-output', className='body-text')
 
 
   ], className='sidebar'),
@@ -58,14 +78,13 @@ app.layout = [
 
          #Region with most number of enrolees
          html.Div([
-           html.Div([html.H1(largest['Total Enrollees'])], className='numerals'), html.P(['Most Populous: ',largest['School Name']],className='body-text-caption')
+           html.Div([html.H1([largest['Total Enrollees'], " Learners"])], className='numerals'), html.P(['Most Populous School: ',largest['School Name']],className='body-text-caption')
             ], className='container'),
 
          #Region with least number of enrolees
          html.Div([
-           html.Div([html.H1(smallest['Total Enrollees'])], className='numerals'), html.P(['Least Populous: ',smallest['School Name']],className='body-text-caption')
+           html.Div([html.H1(schools_zero_enrolles(df))], className='numerals'), html.P(['Schools with Zero Enrollees'],className='body-text-caption')
             ], className='container'),
-
 
          
        #Plotly Chart 1
@@ -82,16 +101,63 @@ app.layout = [
         html.Div([
            #Pie Chart
            dcc.Graph(figure=pie_chart(df), style={'width': '610px', 'height': '450px', 'margin-top': '0px'})
+        ], className='container'),
+
+        html.Div([
+           #Pie Chart
+           dcc.Graph(figure=high_enrollment_table(df), style={'width': '610px', 'height': '450px', 'margin-top': '0px'})
         ], className='container')
 
     ],className='main'),
 
 ]
 
+# Callbacks
+@callback(
+    Output('province-dropdown', 'options'),
+    Output('province-dropdown', 'style'),
+    Input('region-dropdown', 'value')
+)
+def update_province_dropdown(selected_region):
+    if selected_region:
+        filtered_df = df[df['Region'] == selected_region]
+        province_options = [{'label': province, 'value': province} for province in filtered_df['Province'].unique()]
+        return province_options, {'display': 'block'}
+    else:
+        return [], {'display': 'none'}
+
+@callback(
+    Output('district-dropdown', 'options'),
+    Output('district-dropdown', 'style'),
+    Input('province-dropdown', 'value')
+)
+def update_district_dropdown(selected_province):
+    if selected_province:
+        filtered_df = df[df['Province'] == selected_province]
+        district_options = [{'label': district, 'value': district} for district in filtered_df['District'].unique()]
+        return district_options, {'display': 'block'}
+    else:
+        return [], {'display': 'none'}
+
 @callback(
    Output('region-output', 'children'),
    Input('region-dropdown', 'value')
 )
+
+@callback(
+    Output('province-output', 'children'),
+    Input('province-dropdown', 'value')
+)
+def update_province_output(value):
+    return f'You have selected {value}'
+
+@callback(
+    Output('district-output', 'children'),
+    Input('district-dropdown', 'value')
+)
+def update_district_output(value):
+    return f'You have selected {value}'
+
 
 
 def update_output(value):

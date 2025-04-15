@@ -22,6 +22,3 @@ def cleaned_data():
         df[column] = df[column].str.title()
 
     return df
-
-
-print(cleaned_data().head)

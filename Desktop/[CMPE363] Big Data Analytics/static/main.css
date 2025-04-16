@@ -30,6 +30,7 @@
     margin-top: 5px;
 }
 
+
 .sidebar hr{
     color: #323232;
 }
@@ -60,6 +61,7 @@ img{
     background-color: white;
     border-radius: 3px;
     margin: 4px;
+    max-height: 450px;
 }
 
 .main{

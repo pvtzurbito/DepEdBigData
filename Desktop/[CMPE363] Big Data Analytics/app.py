@@ -55,7 +55,7 @@ app.layout = [
         html.H2('Data Dashboard', className='header-text'),
         html.Hr(),
 
-        html.Div(id='summary-cards', className='summary-container'),
+        html.Div(id='summary-cards', className='summary-container', style={'display': 'flex', 'flexWrap': 'wrap'}),
 
         html.Div([
             dcc.Graph(id='total-student-chart', style={'width': '610px', 'height': '450px'})
@@ -143,9 +143,8 @@ def update_dashboard(region, province, district):
         ], className='container'),
 
         html.Div([
-            html.Div([html.H1([largest['Total Enrollees'], " Learners"])], className='numerals'),
-            html.P(f"Most Populous School: {largest['School Name']}", className='body-text-caption')
-        ], className='container'),
+            html.Div([html.H1([f"{int(largest['Total Enrollees']):,}", " Learners"])], className='numerals'), html.P(f"Most Populous School: {largest['School Name']}", className='body-text-caption')
+        ], className='container', style={'max-width': '425px', 'width': '100%',}),
 
         html.Div([
             html.Div([html.H1(schools_zero_enrolles(filtered))], className='numerals'),

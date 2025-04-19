@@ -141,10 +141,11 @@ def school_types(df):
                 fill_color='white',
                 align='left',
                 line_color='black', 
-                font=dict(size=11)))
+                font=dict(size=11),
+                ))
     ])
 
-    table_fig.update_layout(height=600, title  = 'Types and Number of School per Type')
+    table_fig.update_layout(height=450, width=615, title  = 'Types and Number of School per Type')
     return table_fig
 
 
@@ -286,6 +287,7 @@ def high_enrollment_table(df):
         title_text="<b>Schools with the Highest Number of Enrollees</b>",
         title_x=0.5,
         title_font=dict(size=17),
+        width = 615
     )
 
     return fig

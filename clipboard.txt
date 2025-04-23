@@ -62,3 +62,47 @@ h2{
         html.Div([
            html.P({overall_total}, className='header-text')
         ])
+
+
+
+
+
+
+        @callback(
+    Output('output-data-upload', 'children'),
+    Input('upload-data', 'contents'),
+    State('upload-data', 'filename'),
+    Input('clear-button', 'n_clicks')
+)
+def update_output(contents, filename, clear_clicks):
+    # If the clear button is clicked, reset the output
+    if clear_clicks > 0:
+        return html.Div(['Data cleared.'])
+
+    if contents is not None:
+        # Decode the uploaded file
+        content_type, content_string = contents.split(',')
+        decoded = base64.b64decode(content_string)
+        try:
+            # Use pandas to read the CSV file
+            if 'csv' in filename:
+                # Decode the CSV content to a string
+                csv_string = decoded.decode('utf-8')
+                
+                # Pass the CSV content to the cleaned_data function
+                df_cleaned =cleaned_data(csv_string)
+                
+                return html.Div([
+                    html.H5(filename),
+                    html.H6('File successfully uploaded and processed.'),
+                    # Display the first few rows of the cleaned dataframe
+                    html.Pre(df_cleaned.head().to_string())
+                ])
+            else:
+                return html.Div(['Please upload a CSV file.'])
+        except Exception as e:
+            return html.Div([
+                'There was an error processing this file.',
+                html.Pre(str(e))
+            ])
+    return html.Div(['No file uploaded yet.'])

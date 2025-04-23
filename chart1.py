@@ -164,13 +164,14 @@ def school_types(df):
         cells=dict(values=[school_type_counts[col] for col in school_type_counts.columns],
                 align='left',
                 font=dict(size=15),
-                fill_color = '#dbe4ee'
+                fill_color = '#dbe4ee',
+                height=30
                 ))
     ])
 
     table_fig.update_layout(
         height=450,
-        width=615, 
+        width=610, 
         title = '<b>Types and Number of School per Type</b>',
         font=dict(family='Inter'),
         title_x=0.5,
@@ -294,26 +295,27 @@ def high_enrollment_table(df):
 
     # Delete the original columns
     columns_to_delete = list(df.loc[:, 'K Male':'G12 ARTS Female'].columns)
-    columns_to_delete.extend(['Region', 'District', 'Municipality', 'Legislative District', 'Barangay', 'Sector', 'School Subclassification', 'School Type',  'BEIS School ID', 'Province', 'Modified COC'])
-    df = df.drop(columns=columns_to_delete) 
+    columns_to_delete.extend(['Region', 'District', 'Municipality', 'Legislative District', 'Barangay', 'School Subclassification', 'School Type',  'BEIS School ID', 'Province', 'Modified COC'])
+    df = df.drop(columns=columns_to_delete)
 
-    # Group by school name and division, sum enrollees, and sort
-    top_schools = df.groupby(['School Name', 'Division'])['Enrollees'].sum().reset_index()
+    # Group by school name, sector and division, sum enrollees, and sort
+    top_schools = df.groupby(['School Name','Sector', 'Division'])['Enrollees'].sum().reset_index()
     top_schools = top_schools.sort_values('Enrollees', ascending=False).head(10)
-    
+
     top_schools['Enrollees'] = top_schools['Enrollees'].apply(lambda x: f"{x:,}")
 
     # Create the interactive table
     fig = go.Figure(data=[go.Table(
-        header=dict(values=['<b><i>School Name</i></b>', '<b><i>Division</i></b>', '<b><i>Enrollees</i></b>'],
+        header=dict(values=['<b><i>School Name</i></b>','<b><i>Sector</i></b>', '<b><i>Division</i></b>', '<b><i>Enrollees</i></b>'],
                     align='center',
                     font=dict(size=15, color='white'),
                     fill_color = '#211c84'
                     ),
-        cells=dict(values=[top_schools['School Name'], top_schools['Division'], top_schools['Enrollees']],
+        cells=dict(values=[top_schools['School Name'], top_schools['Sector'], top_schools['Division'], top_schools['Enrollees']],
                 align='left',
                 font=dict(size=15),
-                fill_color = '#dbe4ee'
+                fill_color = '#dbe4ee',
+                height=30,
                 ))
     ])
 
@@ -322,8 +324,152 @@ def high_enrollment_table(df):
         font=dict(family='Inter'),
         title_x=0.5,
         title_font=dict(size=17),
-        width = 615,
         margin=dict(t=60, b=20, l=10, r=10),
     )
+
+    return fig
+
+def low_enrollment_table(df):
+    # Calculate the sum of enrollees
+    df['Enrollees'] = df.loc[:, 'K Male':'G12 ARTS Female'].sum(axis=1)
+
+    # Delete the original columns
+    columns_to_delete = list(df.loc[:, 'K Male':'G12 ARTS Female'].columns)
+    columns_to_delete.extend([
+        'Region', 'District', 'Municipality', 'Legislative District', 'Barangay',
+        'School Subclassification', 'School Type', 'BEIS School ID', 'Province', 'Modified COC'
+    ])
+    df = df.drop(columns=columns_to_delete, errors='ignore')
+
+    # Group by school name, sector and division, sum enrollees, and sort
+    bottom_schools = df.groupby(['School Name', 'Sector', 'Division'])['Enrollees'].sum().reset_index()
+    bottom_schools = bottom_schools.sort_values('Enrollees', ascending=True).head(10)
+
+    bottom_schools['Enrollees'] = bottom_schools['Enrollees'].apply(lambda x: f"{x:,}")
+
+    # Create the interactive table
+    fig = go.Figure(data=[go.Table(
+        header=dict(
+            values=[
+                '<b><i>School Name</i></b>',
+                '<b><i>Sector</i></b>',
+                '<b><i>Division</i></b>',
+                '<b><i>Enrollees</i></b>'
+            ],
+            align='center',
+            font=dict(size=15, color='white'),
+            fill_color='#211c84'
+        ),
+        cells=dict(
+            values=[
+                bottom_schools['School Name'],
+                bottom_schools['Sector'],
+                bottom_schools['Division'],
+                bottom_schools['Enrollees']
+            ],
+            align='left',
+            font=dict(size=15),
+            fill_color='#dbe4ee'
+        )
+    )])
+
+    fig.update_layout(
+        title_text="<b>Schools with the Lowest Number of Enrollees</b>",
+        font=dict(family='Inter'),
+        title_x=0.5,
+        title_font=dict(size=17),
+        margin=dict(t=60, b=20, l=10, r=10),
+    )
+
+    return fig
+
+def school_level_percentage_chart(df, selected_region=None, selected_province=None, selected_district=None):
+    import plotly.graph_objects as go
+
+    # Filter based on selections
+    filtered_df = df.copy()
+    if selected_region:
+        filtered_df = filtered_df[filtered_df['Region'] == selected_region]
+    if selected_province:
+        filtered_df = filtered_df[filtered_df['Province'] == selected_province]
+    if selected_district:
+        filtered_df = filtered_df[filtered_df['District'] == selected_district]
+
+    total_es = filtered_df['ES'].sum()
+    total_jhs = filtered_df['JHS'].sum()
+    total_shs = filtered_df['SHS'].sum()
+    total = total_es + total_jhs + total_shs
+
+    if total == 0:
+        total = 1
+
+    es_percent = round((total_es / total) * 100, 2)
+    jhs_percent = round((total_jhs / total) * 100, 2)
+    shs_percent = round((total_shs / total) * 100, 2)
+
+    fig = go.Figure()
+
+    # Donuts
+    fig.add_trace(go.Pie(
+        values=[es_percent, 100-es_percent],
+        hole=0.7,
+        direction='clockwise',
+        sort=False,
+        marker_colors=["#4d55cc", "lightgray"],
+        textinfo='none',
+        showlegend=False,
+        domain=dict(x=[0, 1], y=[0.66, 1])
+    ))
+
+    fig.add_trace(go.Pie(
+        values=[jhs_percent, 100-jhs_percent],
+        hole=0.7,
+        direction='clockwise',
+        sort=False,
+        marker_colors=["#7a73d1", "lightgray"],
+        textinfo='none',
+        showlegend=False,
+        domain=dict(x=[0, 1], y=[0.33, 0.66])
+    ))
+
+    fig.add_trace(go.Pie(
+        values=[shs_percent, 100-shs_percent],
+        hole=0.7,
+        direction='clockwise',
+        sort=False,
+        marker_colors=["#b5a8d5", "lightgray"],
+        textinfo='none',
+        showlegend=False,
+        domain=dict(x=[0, 1], y=[0.0, 0.33])
+    ))
+
+    fig.update_layout(
+        annotations=[
+            # Top pie (Elementary)
+            dict(
+                text=f"<b>{es_percent}%</b><br><span style='font-size:12px'>{total_es:,} enrollees</span>",
+                x=0.5, y=0.825, xanchor='center', yanchor='middle', font_size=16, showarrow=False, font=dict(family='Inter')
+            ),
+            dict(text="Elementary", x=0.5, y=0.78, font_size=14, showarrow=False, font=dict(family='Inter'), xanchor='center'),
+
+            # Middle pie (JHS)
+            dict(
+                text=f"<b>{jhs_percent}%</b><br><span style='font-size:12px'>{total_jhs:,} enrollees</span>",
+                x=0.5, y=0.495, xanchor='center', yanchor='middle', font_size=16, showarrow=False, font=dict(family='Inter')
+            ),
+            dict(text="Junior High", x=0.5, y=0.42, font_size=14, showarrow=False, font=dict(family='Inter'), xanchor='center'),
+
+            # Bottom pie (SHS)
+            dict(
+                text=f"<b>{shs_percent}%</b><br><span style='font-size:12px'>{total_shs:,} enrollees</span>",
+                x=0.5, y=0.165, xanchor='center', yanchor='middle', font_size=16, showarrow=False, font=dict(family='Inter')
+            ),
+            dict(text="Senior High", x=0.5, y=0.06, font_size=14, showarrow=False, font=dict(family='Inter'), xanchor='center'),
+        ],
+        height=450,
+        width=270,
+        margin=dict(t=20, b=20, l=10, r=10)
+    )
+
 
     return fig

@@ -30,6 +30,14 @@
     margin-top: 5px;
 }
 
+.filters-text{
+        color:black;
+        text-align: justify;
+        font-family: 'Inter', sans-serif;
+        font-size: 15px;
+        margin-top: 10px;
+        font-weight: bold;
+}
 
 .sidebar hr{
     color: #323232;
@@ -38,6 +46,36 @@
 body{
     background-color:#f1f1f1;
 } 
+
+.reset-button{
+    font-family: 'Inter';
+    background-color: #211c84;
+    color: white;
+    font-weight: bold;
+    border-radius: 3px;
+    font-size: 12px;
+    min-height: 30px;
+}
+
+.upload-button{
+    font-family: 'Inter';
+    background-color: #211c84;
+    color: white;
+    font-weight: bold;
+    border-radius: 3px;
+    font-size: 12px;
+    padding: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.button-div{
+    margin-left: auto;
+    margin-right:auto;
+    width: 60%;
+    display: flex;
+    flex-direction: row;
+}
 
 .header-1{
     font-family: 'Cinzel', sans-serif;
@@ -76,10 +114,24 @@ img{
     gap: 5px; /* Adds space between each dropdown */
 
 }
+
+.middle-container{
+    display:flex;
+    flex-direction: row;
+    align-items: left;
+    gap: 3px;
+}
+
+.summary-cards{
+    display:flex;
+    flex-direction: row;
+    align-items: left;
+}
+
 .filter-container{
     flex:1;
     font-family: 'Inter';
-    width: 350px;
+    width: 355px;
 }
 
 .numerals {

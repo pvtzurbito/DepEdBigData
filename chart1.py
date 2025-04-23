@@ -31,20 +31,20 @@ def total_student_chart(df):
     student_total = dict(sorted(student_total.items(), key=lambda item: item[1], reverse=False))
 
     color_map = {
-        'Kindergarten': '#054a91',
-        'Grade 1': '#3e7cb1',
-        'Grade 2': '#3e7cb1',
-        'Grade 3': '#3e7cb1',
-        'Grade 4': '#3e7cb1',
-        'Grade 5': '#3e7cb1',
-        'Grade 6': '#3e7cb1',
-        'Grade 7': '#81a4cd',
-        'Grade 8': '#81a4cd',
-        'Grade 9': '#81a4cd',
-        'Grade 10': '#81a4cd',
-        'Grade 11': '#f17300',
-        'Grade 12': '#f17300',
-        'SNEd JHS': '#81a4cd'
+        'Kindergarten': '#211c84',
+        'Grade 1': '#4d55cc',
+        'Grade 2': '#4d55cc',
+        'Grade 3': '#4d55cc',
+        'Grade 4': '#4d55cc',
+        'Grade 5': '#4d55cc',
+        'Grade 6': '#4d55cc',
+        'Grade 7': '#7a73d1',
+        'Grade 8': '#7a73d1',
+        'Grade 9': '#7a73d1',
+        'Grade 10': '#7a73d1',
+        'Grade 11': '#b5a8d5',
+        'Grade 12': '#b5a8d5',
+        'SNEd JHS': '#7a73d1'
     }
     
     chart1 = go.Figure(data=[
@@ -159,10 +159,10 @@ def school_types(df):
         header=dict(values=[f"<b><i>{col}</i></b>" for col in school_type_counts.columns],
                 align='center',
                 font=dict(size=15, color='white'),
-                fill_color = '#054a91'
+                fill_color = '#211c84'
                 ),
         cells=dict(values=[school_type_counts[col] for col in school_type_counts.columns],
-                align='center',
+                align='left',
                 font=dict(size=15),
                 fill_color = '#dbe4ee'
                 ))
@@ -233,7 +233,7 @@ def pie_chart(df):
         'Total Enrollment': [total_male, total_female]
     })
 
-    colors = ['#054a91', '#f17300'] 
+    colors = ['#211c84', '#b5a8d5'] 
     
     # Create the pie chart with values + percentages visible and no hover
     fig = go.Figure(data=[go.Pie(
@@ -308,10 +308,10 @@ def high_enrollment_table(df):
         header=dict(values=['<b><i>School Name</i></b>', '<b><i>Division</i></b>', '<b><i>Enrollees</i></b>'],
                     align='center',
                     font=dict(size=15, color='white'),
-                    fill_color = '#054a91'
+                    fill_color = '#211c84'
                     ),
         cells=dict(values=[top_schools['School Name'], top_schools['Division'], top_schools['Enrollees']],
-                align='center',
+                align='left',
                 font=dict(size=15),
                 fill_color = '#dbe4ee'
                 ))

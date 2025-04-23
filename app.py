@@ -56,19 +56,19 @@ app.layout = [
         html.Hr(),
 
         html.Div(id='summary-cards', className='summary-container', style={'display': 'flex', 'flexWrap': 'wrap'}),
-
+        #Bar Chart
         html.Div([
             dcc.Graph(id='total-student-chart', style={'width': '610px', 'height': '450px'})
         ], className='container'),
-
-        html.Div([
-            dcc.Graph(id='school-types-chart', style={'width': '610px', 'height': '450px'})
-        ], className='container'),
-
+        #Gender Pie Chart
         html.Div([
             dcc.Graph(id='gender-pie-chart', style={'width': '610px', 'height': '450px'})
         ], className='container'),
-
+        #Tyoes of School
+        html.Div([
+            dcc.Graph(id='school-types-chart', style={'width': '610px', 'height': '450px'})
+        ], className='container'),
+        #Schools with Highest Number of Enrollees
         html.Div([
             dcc.Graph(id='high-enrollment-chart', style={'width': '610px', 'height': '450px'})
         ], className='container'),
@@ -99,8 +99,6 @@ def update_district_dropdown(selected_province):
         districts = df[df['Province'] == selected_province]['District'].unique()
         return [{'label': d, 'value': d} for d in districts], {'display': 'block'}
     return [], {'display': 'none'}
-
-
 
 # Function to filter data based on dropdowns
 def filter_df(region, province, district):
@@ -133,21 +131,21 @@ def update_dashboard(region, province, district):
 
     summary_cards = [
         html.Div([
-            html.Div([html.H1(overall_total)], className='numerals'),
+            html.Div([html.Span(overall_total)], className='numerals'),
             html.P("Number of Enrollees in AY 2023-2024", className='body-text-caption')
         ], className='container'),
 
         html.Div([
-            html.Div([html.H1(school_count)], className='numerals'),
+            html.Div([html.Span(school_count)], className='numerals'),
             html.P("Number of Schools in AY 2023-2024", className='body-text-caption')
         ], className='container'),
 
         html.Div([
-            html.Div([html.H1([f"{int(largest['Total Enrollees']):,}", " Learners"])], className='numerals'), html.P(f"Most Populous School: {largest['School Name']}", className='body-text-caption')
-        ], className='container', style={'max-width': '425px', 'width': '100%',}),
+            html.Div([html.Span([f"{int(largest['Total Enrollees']):,}"])], className='numerals'), html.P(f"Largest School Based on Student Population: {largest['School Name']}", className='body-text-caption')
+        ], className='container', style={'max-width': '420px', 'width': '100%',}),
 
         html.Div([
-            html.Div([html.H1(schools_zero_enrolles(filtered))], className='numerals'),
+            html.Div([html.Span(schools_zero_enrolles(filtered))], className='numerals'),
             html.P("Schools with Zero Enrollees", className='body-text-caption')
         ], className='container'),
     ]

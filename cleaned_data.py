@@ -17,7 +17,7 @@ def cleaned_data():
     df["School Name"] = df["School Name"].apply(clean_school_name)
 
     # Fix capitalization
-    columns_to_fix = ['Municipality', 'Province', 'Barangay']
+    columns_to_fix = ['Municipality', 'Province', 'Barangay', 'School Name']
     for column in columns_to_fix:
         df[column] = df[column].str.title()
 

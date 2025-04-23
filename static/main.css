@@ -69,6 +69,19 @@ img{
     margin-left: 375px;
 }
 
+.main-filter-container{
+    display: flex;
+    flex-direction: row;
+    align-items: left; /* Aligns items vertically in the center */
+    gap: 5px; /* Adds space between each dropdown */
+
+}
+.filter-container{
+    flex:1;
+    font-family: 'Inter';
+    width: 350px;
+}
+
 .numerals {
     text-align: center;
     font-size: 45px;

@@ -37,22 +37,28 @@ app.layout = [
         html.Hr(),
         html.H2('Filters', className='header-text'),
 
-        html.H3('Select your Region', className='header-text'),
-        dcc.Dropdown(id='region-dropdown', options=region_dropdown, className='body-text'),
-        html.Div(id='region-output', className='body-text'),
-
-        html.H3('Select your Province', className='header-text'),
-        dcc.Dropdown(id='province-dropdown', options=[], style={'display': 'none'}, className='body-text'),
-        html.Div(id='province-output', className='body-text'),
-
-        html.H3('Select your District', className='header-text'),
-        dcc.Dropdown(id='district-dropdown', options=[], style={'display': 'none'}, className='body-text'),
-        html.Div(id='district-output', className='body-text')
     ], className='sidebar'),
 
     # Main Content
     html.Div([
-        html.H2('Data Dashboard', className='header-text'),
+        html.Div([
+        #Dropdown Lists
+        dcc.Dropdown(id='region-dropdown', 
+                     options=region_dropdown,
+                     className='filter-container',
+                    style={'display':'block'},
+                    placeholder='Select Region'),
+
+        dcc.Dropdown(id='province-dropdown', 
+                     options=[], className='filter-container', placeholder='Select Province', 
+                     style={'display':'block'}),
+        html.Div(id='province-output'),
+
+        dcc.Dropdown(id='district-dropdown', 
+                     options=[], className='filter-container', placeholder='Select Municipality', 
+                     style={'display':'block'}),
+        html.Div(id='district-output'),
+        ], className='main-filter-container'),
         html.Hr(),
 
         html.Div(id='summary-cards', className='summary-container', style={'display': 'flex', 'flexWrap': 'wrap'}),
@@ -86,7 +92,7 @@ def update_province_dropdown(selected_region):
     if selected_region:
         provinces = df[df['Region'] == selected_region]['Province'].unique()
         return [{'label': p, 'value': p} for p in provinces], {'display': 'block'}
-    return [], {'display': 'none'}
+    return [], {'display': 'block'}
 
 
 @callback(
@@ -98,7 +104,7 @@ def update_district_dropdown(selected_province):
     if selected_province:
         districts = df[df['Province'] == selected_province]['District'].unique()
         return [{'label': d, 'value': d} for d in districts], {'display': 'block'}
-    return [], {'display': 'none'}
+    return [], {'display': 'block'}
 
 # Function to filter data based on dropdowns
 def filter_df(region, province, district):

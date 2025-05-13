@@ -1,10 +1,7 @@
 from dash import Dash, html, dcc, Output, Input, callback, State
 import plotly.express as px
 import plotly.graph_objects as go
-from chart1 import (
-    total_student_chart, top_enrollees, total_enrollees_and_schools,
-    school_types, schools_top, pie_chart, schools_zero_enrolles, high_enrollment_table, low_enrollment_table, school_level_percentage_chart
-)
+from chart1 import total_student_chart, top_enrollees, total_enrollees_and_schools, school_types, schools_top, pie_chart, schools_zero_enrolles, high_enrollment_table, low_enrollment_table, school_level_percentage_chart, schools_and_enrollees_chart
 from cleaned_data import cleaned_data
 import io
 import base64
@@ -82,27 +79,34 @@ app.layout = [
         #Middle Section
         #Bar and Pie Chart
         html.Div([
+            #Percentage of Enrollees per Grade clusters
+            html.Div([
+                dcc.Graph(id='school-percentage-chart', style={'width': '200px', 'height': '450px'})
+            ], className='container'),
             html.Div([
                 dcc.Graph(id='total-student-chart', style={'width': '610px', 'height': '450px'})
             ], className='container'),
             #Gender Pie Chart
             html.Div([
-                dcc.Graph(id='gender-pie-chart', style={'width': '610px', 'height': '450px'})
+                dcc.Graph(id='gender-pie-chart', style={'width': '400px', 'height': '450px'})
             ], className='container'),
         ], className='middle-container'),
 
         #Bottom Section
         #Types of School
         html.Div([
-            dcc.Graph(id='low-enrollment-chart', style={'width': '470px', 'height': '450px'})
+            dcc.Graph(id='low-enrollment-chart', style={'width': '611px', 'height': '450px'})
         ], className='container'),
         #Schools with Highest Number of Enrollees
         html.Div([
-            dcc.Graph(id='high-enrollment-chart', style={'width': '470px', 'height': '450px'})
+            dcc.Graph(id='high-enrollment-chart', style={'width': '611px', 'height': '450px'})
         ], className='container'),
+
+
         html.Div([
-            dcc.Graph(id='school-percentage-chart', style={'width': '275px', 'height': '450px'})
-        ], className='container'),
+            dcc.Graph(id='schools-and-enrollees-chart', style={'width': '1229px', 'height': '600px'})
+        ], className='container'), # Added this placeholder
+
 
 
     ], className='main'),
@@ -203,6 +207,7 @@ def filter_df(region, province, district):
     Output('low-enrollment-chart', 'figure'),
     Output('gender-pie-chart', 'figure'),
     Output('high-enrollment-chart', 'figure'),
+    Output('schools-and-enrollees-chart', 'figure'), # Added this line
     Input('region-dropdown', 'value'),
     Input('province-dropdown', 'value'),
     Input('district-dropdown', 'value')
@@ -226,7 +231,7 @@ def update_dashboard(region, province, district):
 
         html.Div([
             html.Div([html.Span([f"{int(largest['Total Enrollees']):,}"])], className='numerals'), html.P(f"Largest School Based on Student Population: {largest['School Name']}", className='body-text-caption')
-        ], className='container', style={'max-width': '420px', 'width': '100%',}),
+        ], className='container', style={'max-width': '423px', 'width': '100%',}),
 
         html.Div([
             html.Div([html.Span(schools_zero_enrolles(filtered))], className='numerals'),
@@ -240,7 +245,8 @@ def update_dashboard(region, province, district):
         school_level_percentage_chart(df, region, province, district),
         low_enrollment_table(filtered),
         pie_chart(filtered),
-        high_enrollment_table(filtered)
+        high_enrollment_table(filtered),
+        schools_and_enrollees_chart(filtered)
     )
 
 

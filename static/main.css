@@ -99,7 +99,7 @@ img{
     background-color: white;
     border-radius: 3px;
     margin: 4px;
-    max-height: 450px;
+    max-height: 650px;
     box-shadow: 2px 3px 5px #c0c0c0;
 }
 
@@ -136,7 +136,7 @@ img{
 
 .numerals {
     text-align: center;
-    font-size: 45px;
+    font-size: 47px;
     color:#323232;
     font-family: 'Inter', sans-serif;
     padding: 10px;

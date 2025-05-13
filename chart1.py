@@ -467,9 +467,53 @@ def school_level_percentage_chart(df, selected_region=None, selected_province=No
             dict(text="Senior High", x=0.5, y=0.06, font_size=14, showarrow=False, font=dict(family='Inter'), xanchor='center'),
         ],
         height=450,
-        width=270,
+        width=200,
         margin=dict(t=20, b=20, l=10, r=10)
     )
 
+
+    return fig
+
+def schools_and_enrollees_chart(filtered_df):
+    filtered_df['Enrollees'] = filtered_df.loc[:, 'K Male':'G12 ARTS Female'].sum(axis=1)
+
+    summary_df = filtered_df.groupby('Region').agg({
+        'BEIS School ID': 'nunique',
+        'Enrollees': 'sum'
+    }).reset_index().rename(columns={'BEIS School ID': 'No. of Schools'})
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=summary_df['Region'],
+        y=summary_df['No. of Schools'],
+        name='No. of Schools',
+        marker_color='#B5A8D5',
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=summary_df['Region'],
+        y=summary_df['Enrollees'],
+        name='No. of Enrollees',
+        mode='lines+markers',
+        yaxis='y2',
+        line=dict(color='#211C84', width=3),
+    ))
+
+    fig.update_layout(
+        title='<b>Number of Schools and Enrollees per Region</b>',
+        font=dict(family='Inter'),
+        xaxis=dict(title='Region', tickangle=45),
+        yaxis=dict(title='No. of Schools'),
+        yaxis2=dict(
+            title='No. of Enrollees',
+            overlaying='y',
+            side='right',
+            showgrid=False
+        ),
+        legend=dict(x=0.5, xanchor='center', y=-0.3, orientation='h'),
+        template='plotly_white',
+        margin=dict(b=200)
+    )
 
     return fig

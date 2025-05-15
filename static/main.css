@@ -4,10 +4,11 @@
 .sidebar{
     background-color:#ffffff;
     height: 100%;
-    width: 350px;
+    width: 360px;
     position: fixed;
     display: inline-block;
     border-radius: 5px;
+    overflow-y: scroll;
 }
 
 
@@ -19,6 +20,11 @@
     font-weight: bold;
     margin-top: 5px;
     margin-bottom: 5px;
+}
+
+p{
+    margin-top: 5px;
+    margin-bottom: 7px;
 }
 
 .body-text{

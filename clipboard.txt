@@ -106,3 +106,22 @@ def update_output(contents, filename, clear_clicks):
                 html.Pre(str(e))
             ])
     return html.Div(['No file uploaded yet.'])
+
+
+
+
+            html.H2('Import Data', className='header-text'),
+            html.Div([
+                dcc.Upload(
+                    id='upload-data',
+                    children=html.Button('Upload CSV', className='upload-button'),
+                    multiple=False  # Allow only one file to be uploaded at a time
+                ),
+                html.Button('Clear CSV', id='clear-button', n_clicks=0, className='upload-button'),
+                html.Div(id='output-data-upload')
+            ],className='button-div')
+        ], className='sidebar'),
+
+
+
+        

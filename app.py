@@ -34,22 +34,16 @@ app.layout = [
         ]),
 
         html.Hr(),
+        html.H2('', className='header-text'),
+        
+        html.Hr(),
+        html.H2('', className='header-text'),
 
-        html.H2('Import Data', className='header-text'),
-            html.Div([
-                dcc.Upload(
-                    id='upload-data',
-                    children=html.Button('Upload CSV', className='upload-button'),
-                    multiple=False  # Allow only one file to be uploaded at a time
-                ),
-                html.Button('Clear CSV', id='clear-button', n_clicks=0, className='upload-button'),
-                html.Div(id='output-data-upload')
-            ],className='button-div')
-        ], className='sidebar'),
+
+], className='sidebar'),
 
     # Main Content
     html.Div([
-
         #Filters
         html.Div([
         html.Span('Filters', className='filters-text'),
@@ -57,16 +51,19 @@ app.layout = [
                      options=region_dropdown,
                      className='filter-container',
                     style={'display':'block'},
-                    placeholder='Select Region'),
+                    placeholder='Select Region',
+                    multi=True),
 
         dcc.Dropdown(id='province-dropdown', 
                      options=[], className='filter-container', placeholder='Select Province', 
-                     style={'display':'block'}),
+                     style={'display':'block'},
+                     multi = True),
         html.Div(id='province-output'),
 
         dcc.Dropdown(id='district-dropdown', 
                      options=[], className='filter-container', placeholder='Select Municipality', 
-                     style={'display':'block'}),
+                     style={'display':'block'},
+                     multi = True),
         html.Div(id='district-output'),
         html.Button('Reset Filters', id='reset-button', n_clicks=0, className='reset-button'),
         ], className='main-filter-container'),
@@ -104,53 +101,13 @@ app.layout = [
 
 
         html.Div([
-            dcc.Graph(id='schools-and-enrollees-chart', style={'width': '1229px', 'height': '600px'})
+            dcc.Graph(id='schools-and-enrollees-chart', style={'width': '1226px', 'height': '600px'})
         ], className='container'), # Added this placeholder
-
-
 
     ], className='main'),
 ]
 
 
-@callback(
-    Output('output-data-upload', 'children'),
-    Input('upload-data', 'contents'),
-    State('upload-data', 'filename'),
-    Input('clear-button', 'n_clicks')
-)
-def update_output(contents, filename, clear_clicks):
-    # If the clear button is clicked, reset the output
-    if clear_clicks > 0:
-        return html.Div(['Data cleared.'])
-
-    if contents is not None:
-        # Decode the uploaded file
-        content_type, content_string = contents.split(',')
-        decoded = base64.b64decode(content_string)
-        try:
-            # Use pandas to read the CSV file
-            if 'csv' in filename:
-                # Decode the CSV content to a string
-                csv_string = decoded.decode('utf-8')
-                
-                # Pass the CSV content to the cleaned_data function
-                df_cleaned =cleaned_data(csv_string)
-                
-                return html.Div([
-                    html.H5(filename),
-                    html.H6('File successfully uploaded and processed.'),
-                    # Display the first few rows of the cleaned dataframe
-                    html.Pre(df_cleaned.head().to_string())
-                ])
-            else:
-                return html.Div(['Please upload a CSV file.'])
-        except Exception as e:
-            return html.Div([
-                'There was an error processing this file.',
-                html.Pre(str(e))
-            ])
-    return html.Div(['No file uploaded yet.'])
 
 # Callbacks for dependent dropdowns
 @callback(
@@ -158,10 +115,10 @@ def update_output(contents, filename, clear_clicks):
     Output('province-dropdown', 'style'),
     Input('region-dropdown', 'value')
 )
-def update_province_dropdown(selected_region):
-    if selected_region:
-        provinces = df[df['Region'] == selected_region]['Province'].unique()
-        return [{'label': p, 'value': p} for p in provinces], {'display': 'block'}
+def update_province_dropdown(selected_regions):
+    if selected_regions:
+        provinces = df[df['Region'].isin(selected_regions)]['Province'].unique()
+        return [{'label': p, 'value': p} for p in sorted(provinces)], {'display': 'block'}
     return [], {'display': 'block'}
 
 
@@ -170,10 +127,10 @@ def update_province_dropdown(selected_region):
     Output('district-dropdown', 'style'),
     Input('province-dropdown', 'value')
 )
-def update_district_dropdown(selected_province):
-    if selected_province:
-        districts = df[df['Province'] == selected_province]['District'].unique()
-        return [{'label': d, 'value': d} for d in districts], {'display': 'block'}
+def update_district_dropdown(selected_provinces):
+    if selected_provinces:
+        districts = df[df['Province'].isin(selected_provinces)]['District'].unique()
+        return [{'label': d, 'value': d} for d in sorted(districts)], {'display': 'block'}
     return [], {'display': 'block'}
 
 # Callback for Reset Button
@@ -184,18 +141,17 @@ def update_district_dropdown(selected_province):
     Input('reset-button', 'n_clicks')
 )
 def reset_filters(n_clicks):
-    # Reset all dropdowns to None or initial state
-    return None, None, None
+    return [], None, None
 
-# Function to filter data based on dropdowns
-def filter_df(region, province, district):
+def filter_df(regions, province, district):
     filtered_df = df.copy()
-    if region:
-        filtered_df = filtered_df[filtered_df['Region'] == region]
+    if regions:
+        # regions is a list now!
+        filtered_df = filtered_df[filtered_df['Region'].isin(regions)]
     if province:
-        filtered_df = filtered_df[filtered_df['Province'] == province]
+        filtered_df = filtered_df[filtered_df['Province'].isin(province)]
     if district:
-        filtered_df = filtered_df[filtered_df['District'] == district]
+        filtered_df = filtered_df[filtered_df['District'].isin(district)]
     return filtered_df
 
 
@@ -207,11 +163,12 @@ def filter_df(region, province, district):
     Output('low-enrollment-chart', 'figure'),
     Output('gender-pie-chart', 'figure'),
     Output('high-enrollment-chart', 'figure'),
-    Output('schools-and-enrollees-chart', 'figure'), # Added this line
-    Input('region-dropdown', 'value'),
+    Output('schools-and-enrollees-chart', 'figure'),
+    Input('region-dropdown', 'value'), 
     Input('province-dropdown', 'value'),
     Input('district-dropdown', 'value')
 )
+
 def update_dashboard(region, province, district):
     filtered = filter_df(region, province, district)
 
@@ -246,7 +203,7 @@ def update_dashboard(region, province, district):
         low_enrollment_table(filtered),
         pie_chart(filtered),
         high_enrollment_table(filtered),
-        schools_and_enrollees_chart(filtered)
+        schools_and_enrollees_chart(df)
     )
 
 

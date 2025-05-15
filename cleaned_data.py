@@ -1,10 +1,12 @@
 import pandas as pd
 import io
+import base64
 
 def cleaned_data(csv_string=None):
     # If csv_string is provided, read from it; else, read from file
-    if csv_string is not None:
-        df = pd.read_csv(io.StringIO(csv_string))
+    if csv_string is not None: 
+        decoder = base64.b64decode(csv_string)
+        df = pd.read_csv(io.StringIO(decoder.decode('utf-8')), skiprows=4)
     else:
         df = pd.read_csv('data/SY 2023-2024 School Level Data on Official Enrollment 13.csv', encoding='latin-1', skiprows=4)
     

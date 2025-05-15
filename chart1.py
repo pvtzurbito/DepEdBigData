@@ -389,11 +389,11 @@ def school_level_percentage_chart(df, selected_region=None, selected_province=No
     # Filter based on selections
     filtered_df = df.copy()
     if selected_region:
-        filtered_df = filtered_df[filtered_df['Region'] == selected_region]
+        filtered_df = filtered_df[filtered_df['Region'].isin(selected_region)]
     if selected_province:
-        filtered_df = filtered_df[filtered_df['Province'] == selected_province]
+        filtered_df = filtered_df[filtered_df['Province'].isin(selected_province)]
     if selected_district:
-        filtered_df = filtered_df[filtered_df['District'] == selected_district]
+        filtered_df = filtered_df[filtered_df['District'].isin(selected_district)]
 
     total_es = filtered_df['ES'].sum()
     total_jhs = filtered_df['JHS'].sum()
@@ -502,6 +502,7 @@ def schools_and_enrollees_chart(filtered_df):
 
     fig.update_layout(
         title='<b>Number of Schools and Enrollees per Region</b>',
+        title_x=0.5,
         font=dict(family='Inter'),
         xaxis=dict(title='Region', tickangle=45),
         yaxis=dict(title='No. of Schools'),

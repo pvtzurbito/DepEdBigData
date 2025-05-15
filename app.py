@@ -34,10 +34,11 @@ app.layout = [
         ]),
 
         html.Hr(),
-        html.H2('', className='header-text'),
-        
-        html.Hr(),
-        html.H2('', className='header-text'),
+        html.P([
+            html.H2('Interpreting the Visuals', className='header-text'),
+            html.P([html.B('1. Overview Cards'),  html.P('These give you a quick snapshot of the current total number of enrolled students, the total number of schools being tracked, the school with the largest student population, and the number of schools with zero enrollees.'), html.B('2. Enrollment by Grade levels and the Distibution of the Education Cluster'), html.P('This chart shows you how student enrollment is distributed across each grade. It helps you identify which grade levels have the most or fewest students. Meanwhile, the donut chart divides enrollment into categories like Elementary, Junior High, and Senior High.'), html.B('3. Gender Balance'), html.P('This gives you a visual sense of gender parity in enrollment.'),  html.B('4. Schools with the Highest and Lowest Enrollment'),html.P('The left table highlights schools with very few or no students enrolled. The right table lists schools managing the largest student bodies.'), html.B('5. Filters'), html.P('When you select a filter, all figures and charts update so you can drill down from the national view to specific locales.')
+            ], className='body-text'),
+        ]),
 
 
 ], className='sidebar'),

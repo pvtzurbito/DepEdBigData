@@ -10,7 +10,7 @@ def cleaned_data(csv_string=None):
     else:
         df = pd.read_csv('data/SY 2023-2024 School Level Data on Official Enrollment 13.csv', encoding='latin-1', skiprows=4)
     
-    df = df.dropna()
+    df = df.fillna(0)
     df = df.drop_duplicates()
     if "Street Address" in df.columns:
         df = df.drop(columns="Street Address")
